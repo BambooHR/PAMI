@@ -154,6 +154,12 @@ class ClientImpl implements IClient
      */
     private $eventMask;
 
+	/**
+	 * See stream_context_create() and http://php.net/manual/en/context.php
+	 * @var array
+	 */
+    private $streamContextOptions;
+
     /**
      * Opens a tcp connection to ami.
      *
@@ -163,7 +169,7 @@ class ClientImpl implements IClient
     public function open()
     {
         $cString = $this->scheme . $this->host . ':' . $this->port;
-        $this->context = stream_context_create();
+        $this->context = stream_context_create( $this->streamContextOptions );
         $errno = 0;
         $errstr = '';
         $this->socket = @stream_socket_client(
@@ -464,6 +470,7 @@ class ClientImpl implements IClient
         $this->rTimeout = $options['read_timeout'];
         $this->scheme = isset($options['scheme']) ? $options['scheme'] : 'tcp://';
         $this->eventMask = isset($options['event_mask']) ? $options['event_mask'] : null;
+        $this->streamContextOptions = isset($options['stream_context_options']) ? $options['stream_context_options'] : array();
         $this->eventListeners = array();
         $this->eventFactory = new EventFactoryImpl();
         $this->incomingQueue = array();
